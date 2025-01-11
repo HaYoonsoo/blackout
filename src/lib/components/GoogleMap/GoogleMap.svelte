@@ -1,25 +1,29 @@
 <script>
 	import { onMount } from 'svelte';
 
-	let start = $state('Chicago, IL');
-	let end = $state('Los Angeles, CA');
+	let start = $state('Empire State Building');
+	let end = $state('Madison Square Park');
 
 	let map;
 
 	let directionsService = $state(null);
 	let directionsRenderer = $state(null);
+	let Place = $state(null);
 
 	async function initMap() {
 		// @ts-ignore
 		const { Map } = await google.maps.importLibrary('maps');
 		// @ts-ignore
 		const { DirectionsService, DirectionsRenderer } = await google.maps.importLibrary('routes');
+		// @ts-ignore
+		const { Place: p } = await google.maps.importLibrary('places');
+		Place = p;
 		directionsService = new DirectionsService();
 		directionsRenderer = new DirectionsRenderer();
-		console.log(directionsRenderer);
+		//@ts-ignore
 
 		map = new Map(document.getElementById('map'), {
-			center: { lat: 37.58639, lng: 127.02917 },
+			center: { lat: 40.7484333, lng: -73.9856556 },
 			zoom: 16,
 			disableDefaultUI: true
 		});
@@ -29,23 +33,30 @@
 	}
 
 	//@ts-ignore
-	function calculateAndDisplayRoute() {
+	async function calculateAndDisplayRoute() {
 		if (!directionsService || !directionsRenderer) {
 			return;
 		}
+		//@ts-ignore
+		const startLocation = (await Place.searchByText({ textQuery: start, fields: ['*'] })).places[0]
+			.location;
+		//@ts-ignore
+		const endLocation = (await Place.searchByText({ textQuery: end, fields: ['*'] })).places[0]
+			.location;
 
 		directionsService
 			//@ts-ignore
 			.route(
 				{
-					origin: start,
-					destination: end,
+					//@ts-ignore
+					origin: { lat: startLocation.lat(), lng: startLocation.lng() },
+					//@ts-ignore
+					destination: { lat: endLocation.lat(), lng: endLocation.lng() },
 					travelMode: 'BICYCLING'
 				},
 				//@ts-ignore
 				function (result, status) {
 					if (status === 'OK') {
-						console.log('done');
 						//@ts-ignore
 						directionsRenderer.setDirections(result);
 					} else {
