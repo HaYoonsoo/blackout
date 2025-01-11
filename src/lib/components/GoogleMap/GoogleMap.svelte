@@ -1,8 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
 
-	let start = $state('');
-	let end = $state('');
+	let start = $state('Chicago, IL');
+	let end = $state('Los Angeles, CA');
 
 	let map;
 
@@ -16,6 +16,7 @@
 		const { DirectionsService, DirectionsRenderer } = await google.maps.importLibrary('routes');
 		directionsService = new DirectionsService();
 		directionsRenderer = new DirectionsRenderer();
+		console.log(directionsRenderer);
 
 		map = new Map(document.getElementById('map'), {
 			center: { lat: 37.58639, lng: 127.02917 },
@@ -24,7 +25,7 @@
 		});
 
 		// @ts-ignore
-		directionsRenderer.set(map);
+		directionsRenderer.setMap(map);
 	}
 
 	//@ts-ignore
@@ -35,23 +36,23 @@
 
 		directionsService
 			//@ts-ignore
-			.route({
-				origin: {
-					query: start
-				},
-				destination: {
-					query: end
+			.route(
+				{
+					origin: start,
+					destination: end,
+					travelMode: 'BICYCLING'
 				},
 				//@ts-ignore
-				travelMode: google.maps.TravelMode.DRIVING
-			})
-			//@ts-ignore
-			.then((response) => {
-				//@ts-ignore
-				directionsRenderer.setDirections(response);
-			})
-			//@ts-ignore
-			.catch((e) => window.alert('Directions request failed due to ' + e));
+				function (result, status) {
+					if (status === 'OK') {
+						console.log('done');
+						//@ts-ignore
+						directionsRenderer.setDirections(result);
+					} else {
+						window.alert('Directions request failed due to ' + status);
+					}
+				}
+			);
 	}
 
 	onMount(async () => {
