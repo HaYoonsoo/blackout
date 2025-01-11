@@ -10,7 +10,6 @@
 <SlideUpAddressBox
 	onDestinationConfirmed={({ lat, lng }: { lat: number; lng: number }) => {
 		destinationCoordinates = { lat, lng };
-		console.log({ lat, lng });
 	}}
 />
 <Splash />
