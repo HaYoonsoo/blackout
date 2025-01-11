@@ -1,8 +1,10 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 
+	let { destinationCoordinates }: { destinationCoordinates: { lat: number; lng: number } } =
+		$props();
+
 	let start = $state('Empire State Building');
-	let end = $state('Madison Square Park');
 
 	let map;
 
@@ -41,8 +43,8 @@
 		const startLocation = (await Place.searchByText({ textQuery: start, fields: ['*'] })).places[0]
 			.location;
 		//@ts-ignore
-		const endLocation = (await Place.searchByText({ textQuery: end, fields: ['*'] })).places[0]
-			.location;
+		// const endLocation = (await Place.searchByText({ textQuery: end, fields: ['*'] })).places[0]
+		// 	.location;
 
 		directionsService
 			//@ts-ignore
@@ -51,7 +53,7 @@
 					//@ts-ignore
 					origin: { lat: startLocation.lat(), lng: startLocation.lng() },
 					//@ts-ignore
-					destination: { lat: endLocation.lat(), lng: endLocation.lng() },
+					destination: { lat: destinationCoordinates.lat, lng: destinationCoordinates.lng },
 					travelMode: 'BICYCLING'
 				},
 				//@ts-ignore
@@ -66,25 +68,15 @@
 			);
 	}
 
+	$effect(() => {
+		if (destinationCoordinates.lat) {
+			calculateAndDisplayRoute();
+		}
+	});
+
 	onMount(async () => {
 		await initMap();
 	});
 </script>
 
-<div id="map" class="aspect-square w-full"></div>
-
-<div>
-	<form
-		id="form"
-		class="flex flex-col gap-2"
-		method="POST"
-		onsubmit={(e) => {
-			e.preventDefault();
-			calculateAndDisplayRoute();
-		}}
-	>
-		<input class="border" type="text" bind:value={start} placeholder="출발지" />
-		<input class="border" type="text" bind:value={end} placeholder="도착지" />
-		<button class="bg-blue-400 font-bold text-white" type="submit">길찾기</button>
-	</form>
-</div>
+<div id="map" class="h-[700px] w-full"></div>
