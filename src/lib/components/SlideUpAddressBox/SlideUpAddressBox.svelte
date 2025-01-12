@@ -4,8 +4,12 @@
 	import Buttons from './Buttons.svelte';
 
 	let {
-		onDestinationConfirmed
-	}: { onDestinationConfirmed: ({ lat, lng }: { lat: number; lng: number }) => any } = $props();
+		onDestinationConfirmed,
+		onNavigationStart
+	}: {
+		onDestinationConfirmed: ({ lat, lng }: { lat: number; lng: number }) => any;
+		onNavigationStart: () => any;
+	} = $props();
 
 	let isActive = $state(false);
 
@@ -26,9 +30,11 @@
 		const { Place } = await google.maps.importLibrary('places');
 		place = Place;
 
+		//await startRecording();
+		//await stopRecording();
 		// const intervalId = setInterval(async () => {
-		// if (isRecording) await stopRecording();
-		// await startRecording();
+		// 	if (isRecording) await stopRecording();
+		// 	await startRecording();
 		// }, 7000);
 
 		//return () => {clearInterval(intervalId)};
@@ -160,10 +166,11 @@
 	async function uploadAudio(mp3Blob: Blob): Promise<void> {
 		const formData = new FormData();
 		formData.append('file', mp3Blob, 'recording.mp3');
-		await fetch('/api/upload', {
+		const data = await fetch('http://3.84.234.232:9000/wakeword', {
 			method: 'POST',
 			body: formData
 		});
+		console.log(data);
 	}
 	//
 </script>
@@ -200,7 +207,7 @@
 					>
 						<img src="/icons/DotPrimary.svg" class="ml-4 h-4 w-4" alt="dot" />
 						<input
-							class="caret-primary-500 ml-[10px] w-full border-0 bg-inherit p-0 outline-none placeholder:text-gray-300 focus:ring-0"
+							class="ml-[10px] w-full border-0 bg-inherit p-0 caret-primary-500 outline-none placeholder:text-gray-300 focus:ring-0"
 							bind:value={destinationText}
 							{onchange}
 							placeholder="도착지 입력하기"
@@ -224,8 +231,8 @@
 					>
 						<img src="/icons/MapPin.svg" class="h-6 w-6" alt="icon" />
 						<div class="flex flex-col items-start gap-1">
-							<h2 class="text-primary-500 text-[16px]">{displayName}</h2>
-							<h3 class="font-regular overflow-clip text-[14px] text-gray-500">
+							<h2 class="text-[16px] text-primary-500">{displayName}</h2>
+							<h3 class="overflow-clip text-[14px] font-regular text-gray-500">
 								{formattedAddress}
 							</h3>
 						</div>
@@ -258,7 +265,7 @@
 					<div class="flex flex-row gap-1">
 						<p class="font-bold text-gray-900">근처 자전거 거치대</p>
 						<div
-							class="text-primary-500 rounded-[99px] px-2 py-[2px]"
+							class="rounded-[99px] px-2 py-[2px] text-primary-500"
 							style="background-color: rgba(38, 200, 110, 0.05)"
 						>
 							-200원
@@ -274,7 +281,7 @@
 		</div>
 		<div class="mt-6 flex flex-col items-end gap-1">
 			<button
-				class="text-primary-500 py-[6px] pl-[16px] pr-[6px]"
+				class="py-[6px] pl-[16px] pr-[6px] text-primary-500"
 				style="background-color: rgba(38, 200, 110, 0.05)"
 			>
 				안전한 길로 안내 {'>'}
@@ -296,8 +303,8 @@
 			onclick={() => (isActive = !isActive)}>닫기</button
 		>
 		<button
-			class="bg-primary-500 line-clamp-2 h-[50px] w-full overflow-clip rounded-[10px] font-bold text-white"
-			>안내시작</button
+			class="line-clamp-2 h-[50px] w-full overflow-clip rounded-[10px] bg-primary-500 font-bold text-white"
+			onclick={() => onNavigationStart()}>안내시작</button
 		>
 	</div>
 {/if}
