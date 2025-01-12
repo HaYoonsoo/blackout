@@ -5,8 +5,8 @@
 
 {#if !isGone}
 	<button
-		class="bg-primary-500 absolute left-0 top-0 flex h-full w-full items-center justify-center border"
-		out:fade
+		class="absolute left-0 top-0 flex h-full w-full items-center justify-center border bg-primary-500"
+		transition:fade|global
 		onclick={() => {
 			isGone = true;
 		}}
